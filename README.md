@@ -1,5 +1,7 @@
 # ADHD Focus Light
 
+[中文版](README_CN.md)
+
 A red LED heartbeat blinker for M5StickC Plus2 designed to help people with ADHD improve focus and concentration.
 
 ## Background
