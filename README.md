@@ -4,9 +4,11 @@ A red LED heartbeat blinker for M5StickC Plus2 designed to help people with ADHD
 
 ## Background
 
-Research suggests that rhythmic visual stimuli can help individuals with ADHD regulate attention and improve focus. This project creates a simple, portable device that produces a calming heartbeat-like red light pattern.
+This project is inspired by a [Hacker News comment](https://news.ycombinator.com/item?id=38274782) where a user shared their personal hack for managing ADHD:
 
-The device mimics a natural heartbeat rhythm with a "lub-dub" pattern, gradually slowing down over time to help the user transition into a more relaxed, focused state.
+> Place a tiny LED by the side of your monitor. Make it blink like a fast heartbeat (120-150 bpm) and gradually slow down to around 60 bpm. Without realizing, your brain will try to sync with the light that you can barely see, calming you down and allowing you to go focus-mode. Works like hypnosis!
+
+This project is also based on [ADHD_Blink](https://github.com/Qiaogun/ADHD_Blink) by Qiaogun, which implemented this concept for M5StickC Plus. This version is updated for the newer M5StickC Plus2 hardware.
 
 ## Features
 
@@ -96,5 +98,6 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ## Acknowledgments
 
+- Original idea from [this Hacker News comment](https://news.ycombinator.com/item?id=38274782)
+- Based on [ADHD_Blink](https://github.com/Qiaogun/ADHD_Blink) by Qiaogun
 - Built with [M5StickCPlus2 Library](https://github.com/m5stack/M5StickCPlus2)
-- Inspired by research on rhythmic visual stimuli for ADHD focus improvement
