@@ -12,6 +12,12 @@
 
 本项目同时基于 Qiaogun 的 [ADHD_Blink](https://github.com/Qiaogun/ADHD_Blink) 项目，该项目为 M5StickC Plus 实现了这一概念。本版本针对更新的 M5StickC Plus2 硬件进行了适配。
 
+## 实物照片
+
+| 简洁模式 | 信息模式 |
+|:-------:|:-------:|
+| ![简洁模式](images/minimal-mode.jpeg) | ![信息模式](images/info-mode.jpeg) |
+
 ## 功能特性
 
 - **50% 占空比闪烁**：自然的闪烁模式（每拍亮灭各一半时间）

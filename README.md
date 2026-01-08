@@ -12,6 +12,12 @@ This project is inspired by a [Hacker News comment](https://news.ycombinator.com
 
 This project is also based on [ADHD_Blink](https://github.com/Qiaogun/ADHD_Blink) by Qiaogun, which implemented this concept for M5StickC Plus. This version is updated for the newer M5StickC Plus2 hardware.
 
+## Photos
+
+| Minimal Mode | Info Mode |
+|:------------:|:---------:|
+| ![Minimal Mode](images/minimal-mode.jpeg) | ![Info Mode](images/info-mode.jpeg) |
+
 ## Features
 
 - **50% Duty Cycle Flash**: Natural blinking pattern (half on, half off per beat)
