@@ -1,0 +1,17 @@
+# Arduino build files
+build/
+*.elf
+*.bin
+*.hex
+*.map
+
+# IDE specific
+.vscode/
+*.code-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Repomix output
+repomix-output.xml
