@@ -14,12 +14,14 @@ This project is also based on [ADHD_Blink](https://github.com/Qiaogun/ADHD_Blink
 
 ## Features
 
-- **Heartbeat Pattern**: Realistic "lub-dub" double-flash pattern mimicking a natural heartbeat
-- **Multiple BPM Modes**: 120 BPM (alert), 85 BPM (normal), 70 BPM (relaxed), and Pause
-- **Auto Ramp-Down**: BPM automatically decreases by 5 every minute to gradually calm the user
+- **50% Duty Cycle Flash**: Natural blinking pattern (half on, half off per beat)
+- **Multiple BPM Modes**: 120 → 100 → 80 → 60 → PAUSE
+- **Configurable Ramp-Down**: BPM decreases by 5 at configurable intervals (30s/60s/90s/2m/OFF)
+- **Auto Sleep Flow**: 60 BPM for 5 min → PAUSE for 2 min → Auto power off
+- **Adjustable LED Brightness**: 4 levels (30/80/150/255), default level 3
+- **Adjustable Screen Brightness**: 4 levels (20/60/120/200), default level 3
+- **Dual Display Modes**: Minimal mode (BPM only) and Info mode
 - **Battery Powered**: Portable design using M5StickC Plus2's built-in battery
-- **OLED Display**: Shows current BPM, mode, session time, and battery status
-- **Adjustable Brightness**: Screen brightness can be adjusted for different environments
 
 ## Hardware Requirements
 
@@ -65,30 +67,66 @@ arduino-cli upload -p PORT --fqbn m5stack:esp32:m5stack_stickc_plus2 adhd.ino
 
 ### Button Controls
 
+#### Minimal Mode (Page 0) - Default
 | Button | Short Press | Long Press |
 |--------|-------------|------------|
-| **BtnA** (front M5 button) | Cycle modes: 120 BPM → 85 BPM → 70 BPM → PAUSE → 120 BPM | Quick pause/resume (returns to previous mode and BPM) |
-| **BtnB** (side button) | Toggle display page (simple/detailed) | Cycle screen brightness |
+| **BtnA** (front) | Cycle modes: 120 → 100 → 80 → 60 → PAUSE → 120... | - |
+| **BtnB** (side) | Switch to Info Mode | Cycle screen brightness |
 
-### Display Information
+#### Info Mode (Page 1)
+| Button | Short Press | Long Press |
+|--------|-------------|------------|
+| **BtnA** (front) | Cycle LED brightness (1→2→3→4) | Cycle ramp interval |
+| **BtnB** (side) | Switch to Minimal Mode | Cycle screen brightness |
 
-- **Page 0 (Simple)**: Mode, page number, battery percentage, BPM, session time, next BPM decrease countdown
-- **Page 1 (Detailed)**: Additional battery voltage and brightness level
+### Display Modes
 
-### Heartbeat Pattern
+- **Minimal Mode**: Large centered BPM number or "PAUSE" - zero distractions
+- **Info Mode**: Shows battery %, LED brightness, BPM/PAUSE, run time, and ramp config
+  - Top bar: `BAT:XX%[+]` (left) and `LED:X` (right)
+  - Center: Large BPM value or "PAUSE"
+  - Bottom bar: `Run:MM:SS` (left) and `Ramp:XXs` (right)
+  - LED stays on solid to help adjust brightness
+  - Display is static (time snapshot when entering) to save power
 
-Each heartbeat consists of:
-- First flash: 60ms ON
-- Gap: 80ms OFF
-- Second flash: 60ms ON
-- Rest: Until next beat
+### Ramp Intervals
+
+Configurable via long press on BtnA in Info Mode:
+- **30s**: Fast ramp-down
+- **60s**: Default
+- **90s**: Slow ramp-down
+- **2m**: Very slow ramp-down
+- **OFF**: No auto ramp-down
+
+### Auto Sleep Flow
+
+```
+120 BPM → 100 → 80 → 60 → [5 min] → PAUSE → [2 min] → Power Off
+```
+
+1. BPM decreases by 5 at each ramp interval
+2. After reaching 60 BPM, continues for 5 minutes
+3. Automatically enters PAUSE mode
+4. After 2 minutes in PAUSE, device powers off
+
+Manual mode switching resets all timers.
 
 ## How It Works
 
 1. **Startup**: Red LED lights up for 2 seconds as a self-test
-2. **Running**: LED flashes in heartbeat pattern at the selected BPM
-3. **Auto Ramp-Down**: Every 60 seconds, BPM decreases by 5 (minimum 65 BPM)
-4. **Session Timer**: Tracks total session duration on display
+2. **Running**: LED flashes at 50% duty cycle at current BPM
+3. **Auto Ramp-Down**: BPM decreases by 5 at configured interval (min 60 BPM)
+4. **Auto Sleep**: After reaching 60 BPM for 5 min, pauses then powers off
+
+## Default Settings
+
+| Setting | Default Value |
+|---------|---------------|
+| Starting BPM | 120 |
+| LED Brightness | Level 3 (150/255) |
+| Screen Brightness | Level 3 (120/200) |
+| Ramp Interval | 60 seconds |
+| Display Mode | Minimal |
 
 ## License
 
