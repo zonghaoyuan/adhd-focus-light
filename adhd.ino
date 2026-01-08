@@ -168,7 +168,9 @@ void tickUI() {
   uiNeedsRefresh = false;
 
   int batPct = StickCP2.Power.getBatteryLevel();
-  bool charging = (StickCP2.Power.isCharging() != 0);
+  // isCharging() 返回值：0=未充电, 1=充电中, 2=充电完成
+  // 只有状态为 1 时才显示充电标志
+  bool charging = (StickCP2.Power.isCharging() == 1);
 
   // 首次进入时画框架
   if (ui.mode == NUM_MODES) {
