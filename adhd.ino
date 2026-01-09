@@ -219,14 +219,23 @@ void uiDrawTopBar(int batPct, bool charging) {
 void uiDrawBigBpm() {
   StickCP2.Display.fillRect(0, 28, StickCP2.Display.width(), 78, BLACK);
   StickCP2.Display.setTextSize(4);
-  StickCP2.Display.setCursor(10, 50);
 
   if (currentMode == PAUSE) {
+    // "PAUSE" is 5 chars, each char is 6*4=24 pixels wide at size 4
+    int16_t x = (StickCP2.Display.width() - 5 * 24) / 2;
+    StickCP2.Display.setCursor(x, 50);
     StickCP2.Display.print("PAUSE");
   } else {
+    // Calculate BPM text width: 2 or 3 digits
+    int digits = (currentBPM >= 100) ? 3 : 2;
+    // BPM number + "BPM" label width calculation
+    // Number: digits * 24, space: 8, "BPM" at size 2: 3 * 12 = 36
+    int16_t totalWidth = digits * 24 + 8 + 36;
+    int16_t x = (StickCP2.Display.width() - totalWidth) / 2;
+    StickCP2.Display.setCursor(x, 50);
     StickCP2.Display.printf("%d", currentBPM);
     StickCP2.Display.setTextSize(2);
-    StickCP2.Display.setCursor(130, 65);
+    StickCP2.Display.setCursor(x + digits * 24 + 8, 65);
     StickCP2.Display.print("BPM");
   }
 }
