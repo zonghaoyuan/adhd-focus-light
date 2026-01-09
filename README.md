@@ -134,6 +134,10 @@ Manual mode switching resets all timers.
 | Ramp Interval | 60 seconds |
 | Display Mode | Minimal |
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=zonghaoyuan/adhd-focus-light&type=Date)](https://star-history.com/#zonghaoyuan/adhd-focus-light&Date)
+
 ## License
 
 MIT License - Feel free to use, modify, and distribute.

@@ -134,6 +134,10 @@ arduino-cli upload -p PORT --fqbn m5stack:esp32:m5stack_stickc_plus2 adhd.ino
 | 降速间隔 | 60 秒 |
 | 显示模式 | 简洁模式 |
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=zonghaoyuan/adhd-focus-light&type=Date)](https://star-history.com/#zonghaoyuan/adhd-focus-light&Date)
+
 ## 许可证
 
 MIT 许可证 - 可自由使用、修改和分发。
