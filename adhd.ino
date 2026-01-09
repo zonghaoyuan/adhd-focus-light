@@ -3,7 +3,7 @@
 // ----------------- LED control -----------------
 const uint8_t LED_BRIGHTS[] = {30, 80, 150, 255};
 const char LED_BRIGHT_NAMES[] = {'1', '2', '3', '4'};
-uint8_t ledBrightIdx = 2;  // 默认中高亮度
+uint8_t ledBrightIdx = 2;  // Default medium-high brightness
 
 static inline void setRedLed(bool on) {
   StickCP2.Power.setLed(on ? LED_BRIGHTS[ledBrightIdx] : 0);
@@ -14,15 +14,15 @@ enum Mode { BPM120, BPM100, BPM80, BPM60, PAUSE, NUM_MODES };
 Mode currentMode = BPM120;
 int  currentBPM = 120;
 
-// ----------------- Ramp (降速配置) -----------------
+// ----------------- Ramp Configuration -----------------
 const uint16_t RAMP_INTERVALS[] = {30, 60, 90, 120, 0};
 const char* RAMP_NAMES[] = {"30s", "60s", "90s", "2m", "OFF"};
-uint8_t rampIdx = 1;  // 默认 60s
+uint8_t rampIdx = 1;  // Default 60s
 uint32_t lastBPMUpdateMs = 0;
 
-// 到达 60 BPM 后的自动暂停计时
-const uint32_t AUTO_PAUSE_DELAY_MS = 5UL * 60UL * 1000UL;  // 5 分钟
-uint32_t reachedMinBpmMs = 0;  // 到达 60 BPM 的时间点（0 表示未到达）
+// Auto-pause timer after reaching 60 BPM
+const uint32_t AUTO_PAUSE_DELAY_MS = 5UL * 60UL * 1000UL;  // 5 minutes
+uint32_t reachedMinBpmMs = 0;  // Timestamp when 60 BPM was reached (0 = not reached)
 
 // ----------------- Screen Brightness -----------------
 const uint8_t SCREEN_BRIGHTS[] = {20, 60, 120, 200};
@@ -34,14 +34,14 @@ uint32_t beatSyncMs = 0;
 // ----------------- UI -----------------
 uint32_t sessionStartMs = 0;
 bool screenOn = true;
-uint8_t uiPage = 0; // 0=简洁 1=信息
-bool uiNeedsRefresh = true;  // 是否需要刷新屏幕
+uint8_t uiPage = 0; // 0=minimal 1=info
+bool uiNeedsRefresh = true;  // Whether screen needs refresh
 
 struct UiCache {
   int bpm = -1;
   Mode mode = NUM_MODES;
   uint32_t sec = 0;
-  uint32_t infoPageEnterSec = 0;  // 进入信息模式时的时间快照
+  uint32_t infoPageEnterSec = 0;  // Time snapshot when entering info mode
   int batPct = -1;
   bool charging = false;
   uint8_t page = 255;
@@ -57,7 +57,7 @@ void uiDrawFrame() {
   StickCP2.Display.setTextSize(2);
 }
 
-// 简洁模式：居中显示 BPM 或 PAUSE
+// Minimal mode: centered BPM or PAUSE
 void uiDrawMinimal() {
   StickCP2.Display.fillScreen(BLACK);
   StickCP2.Display.setTextColor(WHITE);
@@ -78,19 +78,19 @@ void uiDrawMinimal() {
   }
 }
 
-// 信息模式：顶栏显示电量和 LED 亮度（左右对齐）
+// Info mode: top bar with battery and LED brightness (left-right aligned)
 void uiDrawTopBar(int batPct, bool charging) {
   StickCP2.Display.fillRect(0, 0, StickCP2.Display.width(), 22, BLACK);
   StickCP2.Display.setTextSize(2);
-  // 左侧：电量
+  // Left: battery
   StickCP2.Display.setCursor(2, 2);
   StickCP2.Display.printf("BAT:%d%%%s", batPct, charging ? "+" : "");
-  // 右侧：LED 亮度（右对齐，"LED:3" 约 5*12=60 像素宽）
+  // Right: LED brightness (right-aligned, "LED:3" ~5*12=60 pixels wide)
   StickCP2.Display.setCursor(StickCP2.Display.width() - 62, 2);
   StickCP2.Display.printf("LED:%c", LED_BRIGHT_NAMES[ledBrightIdx]);
 }
 
-// 信息模式：中间显示 BPM 或 PAUSE
+// Info mode: center BPM or PAUSE
 void uiDrawBigBpm() {
   StickCP2.Display.fillRect(0, 28, StickCP2.Display.width(), 78, BLACK);
   StickCP2.Display.setTextSize(4);
@@ -106,15 +106,15 @@ void uiDrawBigBpm() {
   }
 }
 
-// 信息模式：底栏显示运行时间和降速配置（左右对齐，静态显示）
+// Info mode: bottom bar with run time and ramp config (left-right aligned, static)
 void uiDrawBottom(uint32_t elapsedSec) {
   StickCP2.Display.fillRect(0, 110, StickCP2.Display.width(), 25, BLACK);
   StickCP2.Display.setTextSize(2);
-  // 左侧：运行时间
+  // Left: run time
   StickCP2.Display.setCursor(2, 112);
   StickCP2.Display.printf("Run:%02lu:%02lu", elapsedSec / 60, elapsedSec % 60);
-  // 右侧：降速配置（右对齐）
-  // "Ramp:60s" 约 8*12=96 像素宽，"Ramp:OFF" 也差不多
+  // Right: ramp config (right-aligned)
+  // "Ramp:60s" ~8*12=96 pixels wide
   StickCP2.Display.setCursor(StickCP2.Display.width() - 108, 112);
   StickCP2.Display.printf("Ramp:%s", RAMP_NAMES[rampIdx]);
 }
@@ -142,7 +142,7 @@ void tickUI() {
   uint32_t now = millis();
   uint32_t elapsedSec = (now - sessionStartMs) / 1000;
 
-  // 页面变化时强制刷新
+  // Force refresh on page change
   if (ui.page != uiPage) {
     ui.page = uiPage;
     ui.bpm = -1; ui.mode = NUM_MODES; ui.sec = 0;
@@ -153,7 +153,7 @@ void tickUI() {
     }
   }
 
-  // ===== 简洁模式（page 0）：只在 BPM/mode 变化时刷新 =====
+  // ===== Minimal mode (page 0): refresh only on BPM/mode change =====
   if (uiPage == 0) {
     if (ui.bpm != currentBPM || ui.mode != currentMode) {
       uiDrawMinimal();
@@ -163,44 +163,44 @@ void tickUI() {
     return;
   }
 
-  // ===== 信息模式（page 1）：只在按钮触发时刷新 =====
+  // ===== Info mode (page 1): refresh only on button press =====
   if (!uiNeedsRefresh) return;
   uiNeedsRefresh = false;
 
   int batPct = StickCP2.Power.getBatteryLevel();
-  // isCharging() 返回值：0=未充电, 1=充电中, 2=充电完成
-  // 只有状态为 1 时才显示充电标志
+  // isCharging() returns: 0=not charging, 1=charging, 2=charge complete
+  // Only show charging indicator when state is 1
   bool charging = (StickCP2.Power.isCharging() == 1);
 
-  // 首次进入时画框架
+  // Draw frame on first entry
   if (ui.mode == NUM_MODES) {
     uiDrawFrame();
   }
 
-  // 顶栏
+  // Top bar
   uiDrawTopBar(batPct, charging);
   ui.batPct = batPct;
   ui.ledBrightIdx = ledBrightIdx;
 
-  // 中间 BPM/PAUSE
+  // Center BPM/PAUSE
   uiDrawBigBpm();
   ui.bpm = currentBPM;
   ui.mode = currentMode;
 
-  // 底栏
+  // Bottom bar
   uiDrawBottom(ui.infoPageEnterSec);
   ui.rampIdx = rampIdx;
 }
 
-// ----------------- Heartbeat (50% 占空比) -----------------
+// ----------------- Heartbeat (50% duty cycle) -----------------
 void tickHeartbeat() {
-  // 暂停模式下关闭
+  // Turn off in pause mode
   if (currentMode == PAUSE) {
     setRedLed(false);
     return;
   }
 
-  // 信息模式下常亮，方便调节亮度
+  // Stay on in info mode to help adjust brightness
   if (uiPage == 1) {
     setRedLed(true);
     return;
@@ -217,19 +217,19 @@ void tickHeartbeat() {
 void tickRamp() {
   uint32_t now = millis();
 
-  // PAUSE 模式下：2 分钟后自动关机
+  // In PAUSE mode: auto power off after 2 minutes
   if (currentMode == PAUSE) {
     if (reachedMinBpmMs > 0 && now - reachedMinBpmMs >= 2UL * 60UL * 1000UL) {
-      StickCP2.Power.powerOff();  // 关机
+      StickCP2.Power.powerOff();
     }
     return;
   }
 
-  // 检查是否到达 60 BPM 并持续 5 分钟后自动暂停
+  // Check if at 60 BPM for 5 minutes, then auto pause
   if (currentBPM <= 60 && reachedMinBpmMs > 0) {
     if (now - reachedMinBpmMs >= AUTO_PAUSE_DELAY_MS) {
       currentMode = PAUSE;
-      reachedMinBpmMs = now;  // 重置计时，用于 2 分钟后关机
+      reachedMinBpmMs = now;  // Reset timer for 2-minute power off
       setRedLed(false);
       return;
     }
@@ -245,14 +245,14 @@ void tickRamp() {
     if (currentBPM > 60) {
       currentBPM -= 5;
     } else if (reachedMinBpmMs == 0) {
-      // 刚到达 60 BPM，开始 5 分钟计时
+      // Just reached 60 BPM, start 5-minute timer
       reachedMinBpmMs = now;
     }
   }
 }
 
 // ----------------- Buttons -----------------
-// 用于正确区分长按和短按
+// For proper short/long press distinction
 bool btnAHoldTriggered = false;
 bool btnBHoldTriggered = false;
 uint32_t lastHoldMsA = 0;
@@ -262,25 +262,25 @@ void handleButtons() {
   StickCP2.update();
 
   // ========== Button A ==========
-  // 检测长按（在信息模式下修改降速间隔）
+  // Detect long press (modify ramp interval in info mode)
   if (StickCP2.BtnA.wasHold() && millis() - lastHoldMsA > 500) {
     lastHoldMsA = millis();
     btnAHoldTriggered = true;
 
     if (uiPage == 1) {
-      // 信息模式：长按修改降速间隔
+      // Info mode: long press to modify ramp interval
       rampIdx = (rampIdx + 1) % (sizeof(RAMP_INTERVALS) / sizeof(RAMP_INTERVALS[0]));
       lastBPMUpdateMs = millis();
       uiNeedsRefresh = true;
     }
   }
 
-  // 检测松开（短按）
+  // Detect release (short press)
   if (StickCP2.BtnA.wasReleased()) {
     if (!btnAHoldTriggered) {
-      // 短按
+      // Short press
       if (uiPage == 0) {
-        // 简洁模式：切换 BPM 模式
+        // Minimal mode: cycle BPM modes
         currentMode = static_cast<Mode>((currentMode + 1) % NUM_MODES);
         switch (currentMode) {
           case BPM120: currentBPM = 120; break;
@@ -293,10 +293,10 @@ void handleButtons() {
         uint32_t now = millis();
         lastBPMUpdateMs = now;
         beatSyncMs = now;
-        reachedMinBpmMs = 0;  // 重置自动暂停/关机计时
+        reachedMinBpmMs = 0;  // Reset auto pause/power off timer
         setRedLed(false);
       } else {
-        // 信息模式：短按修改 LED 亮度
+        // Info mode: short press to modify LED brightness
         ledBrightIdx = (ledBrightIdx + 1) % (sizeof(LED_BRIGHTS) / sizeof(LED_BRIGHTS[0]));
         uiNeedsRefresh = true;
       }
@@ -305,17 +305,17 @@ void handleButtons() {
   }
 
   // ========== Button B ==========
-  // 检测长按（调节屏幕亮度）
+  // Detect long press (adjust screen brightness)
   if (StickCP2.BtnB.wasHold() && millis() - lastHoldMsB > 500) {
     lastHoldMsB = millis();
     btnBHoldTriggered = true;
 
-    // 长按 B 调节屏幕亮度（任意模式下都可以）
+    // Long press B to adjust screen brightness (works in any mode)
     screenBrightIdx = (screenBrightIdx + 1) % (sizeof(SCREEN_BRIGHTS) / sizeof(SCREEN_BRIGHTS[0]));
     uiApplyScreenBrightness();
   }
 
-  // 检测松开（短按切页面）
+  // Detect release (short press to switch page)
   if (StickCP2.BtnB.wasReleased()) {
     if (!btnBHoldTriggered) {
       uiPage ^= 1;
@@ -340,7 +340,7 @@ void setup() {
   lastBPMUpdateMs = sessionStartMs;
   beatSyncMs = sessionStartMs;
 
-  // 启动自检：红灯亮 2 秒
+  // Startup self-test: red LED on for 2 seconds
   setRedLed(true);
   delay(2000);
   setRedLed(false);
